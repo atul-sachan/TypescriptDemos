@@ -1,0 +1,411 @@
+/*********************************************Basics function**************************** */
+function add(n1: number, n2: number, showResult: boolean, phrase: string) {
+  // if (typeof n1 !== 'number' || typeof n2 !== 'number') {
+  //   throw new Error('Incorrect input!');
+  // }
+  const result = n1 + n2;
+  if (showResult) {
+    console.log(phrase + result);
+  } else {
+    return result;
+  }
+}
+
+let number1: number;
+number1 = 5;
+const number2 = 2.8;
+const printResult = true;
+let resultPhrase = 'Result is: ';
+
+add(number1, number2, printResult, resultPhrase);
+
+
+/*********************************************functions with callback **************************** */
+
+function addValue(n1: number, n2: number) {
+  return n1 + n2;
+}
+
+function printFunctionResult(num: number): void {
+  console.log('Result: ' + num);
+}
+
+function addAndHandle(n1: number, n2: number, cb: (num: number) => void) {
+  const result = n1 + n2;
+  cb(result);
+}
+
+printFunctionResult(addValue(5, 12));
+
+let combineValues: (a: number, b: number) => number;  // callback function like delegate
+
+combineValues = addValue;
+// combineValues = printResult;
+// combineValues = 5;
+
+console.log(combineValues(8, 8));
+
+// let someValue: undefined;
+
+addAndHandle(10, 20, (result) => {
+  console.log(result);
+});
+
+/*********************************************Emums **************************** */
+enum Role { ADMIN = 'ADMIN', READ_ONLY = 100, AUTHOR = 'AUTHOR' };
+
+/*********************************************Objects **************************** */
+const person = {
+  name: 'Maximilian',
+  age: 30,
+  hobbies: ['Sports', 'Cooking'],
+  role: Role.ADMIN
+};
+
+/*********************************************Arrays **************************** */
+let favoriteActivities: string[];
+favoriteActivities = ['Sports'];
+
+/*********************************************Tuples **************************** */
+let product: [number, string] = [1, "Bag"]; // its a fixed Array length
+
+/**********************************Examples of Enum, Objects, Array and Tuples **************************** */
+
+console.log(person.name);
+
+for (const hobby of person.hobbies) {
+  console.log(hobby.toUpperCase());
+  // console.log(hobby.map()); // !!! ERROR !!!
+}
+
+if (person.role === Role.AUTHOR) {
+  console.log('is author');
+}
+
+product.push('Box'); // its is exception 
+// product[1] = 10; // !!! ERROR !!!
+
+// product = [0, 'Bag', 'Box']; // !!! ERROR !!!
+
+
+/********************************************* Unknown **************************** */
+// we can assign anything but its is different from any. 
+// Always need to check typeof before assigned to any variable.
+let userInput: unknown;  
+let userName: string;
+
+userInput = 5;
+userInput = 'Max';
+if (typeof userInput === 'string') {
+  userName = userInput;
+}
+
+/********************************************* Never **************************** */
+// It is different from void. Never ensure it exits function before return.
+
+function generateError(message: string, code: number): never {
+  throw { message: message, errorCode: code };
+  // while (true) {}
+}
+
+// generateError('An error occurred!', 500);
+
+/********************************************* Union and Alias **************************** */
+
+type Combinable = number | string;   // Union Types
+type ConversionDescriptor = 'as-number' | 'as-text';  // Alias Types
+
+function combine(
+  input1: Combinable,
+  input2: Combinable,
+  resultConversion: ConversionDescriptor
+) {
+  let result;
+  if (typeof input1 === 'number' && typeof input2 === 'number' || resultConversion === 'as-number') {
+    result = +input1 + +input2;
+  } else {
+    result = input1.toString() + input2.toString();
+  }
+  return result;
+  // if (resultConversion === 'as-number') {
+  //   return +result;
+  // } else {
+  //   return result.toString();
+  // }
+}
+
+const combinedAges = combine(30, 26, 'as-number');
+console.log(combinedAges);
+
+const combinedStringAges = combine('30', '26', 'as-number');
+console.log(combinedStringAges);
+
+const combinedNames = combine('Max', 'Anna', 'as-text');
+console.log(combinedNames);
+
+/********************************************* Rest Operator **************************** */
+const atul = {
+  personName: "atul sachan",
+  website: "https://atul.com/",
+  twitterHandle: "@atul"
+};
+
+// const { personName, ...accounts} = atul;
+// const { twitterHandle, ...rest} = atul;
+// const { personName: fullName, ...accounts} = atul;
+
+/********************************************* Spread Operator **************************** */
+const defaultOptions = {
+  method: "GET",
+  credentials: "same-origin"
+};
+
+const requestOptions = {
+  method: "POST",
+  redirect: "follow"
+};
+
+const options = {
+  ...defaultOptions,
+  ...requestOptions
+};
+console.log(options);
+// {
+//   method: "POST",
+//   credentials: "same-origin",
+//   redirect: "follow"
+// }
+
+//******************************** */
+// Making Shallow Copies of Objects
+//******************************** */
+const todo = {
+  text: "Water the flowers",
+  completed: false,
+  tags: ["garden"]
+};
+
+const shallowCopy = { ...todo };
+
+console.log(todo === shallowCopy);
+// false
+
+console.log(shallowCopy);
+// {
+//   text: "Water the flowers",
+//   completed: false,
+//   tags: ["garden"]
+// }
+
+/********************************************* Array and Object Destructring **************************** */
+var rect = { x: 0, y: 10, width: 15, height: 20 };
+
+// Destructuring assignment
+var {x, y, width, height} = rect;
+console.log(x, y, width, height); // 0,10,15,20
+
+rect.x = 10;
+({x, y, width, height} = rect); // assign to existing variables using outer parentheses
+console.log(x, y, width, height); // 10,10,15,20
+
+var {w, x, ...remaining} = {w: 1, x: 2, y: 3, z: 4};
+console.log(w, x, remaining); // 1, 2, {y:3,z:4}
+
+var x = 1, y = 2;
+[x, y] = [y, x];
+console.log(x, y); // 2,1
+
+var [x, y, ...remainings] = [1, 2, 3, 4];
+console.log(x, y, remainings); // 1, 2, [3,4]
+
+var [x, , ...remainingss] = [1, 2, 3, 4];
+console.log(x, remainingss); // 1, [3,4]
+
+/********************************************* Classes **************************** */
+//******************************** */
+// abstract class
+// readonly Properties
+// public , private and protected Access modifier
+// static property and methods
+// getter and setter for property
+// singleton class
+//******************************** */
+abstract class Department {
+  static fiscalYear = 2020;
+  // private readonly id: string;
+  // private name: string;
+  protected employees: string[] = [];
+
+  constructor(protected readonly id: string, public name: string) {
+    // this.id = id;
+    // this.name = n;
+    // console.log(Department.fiscalYear);
+  }
+
+  static createEmployee(name: string) {
+    return { name: name };
+  }
+
+  abstract describe(this: Department): void;
+
+  addEmployee(employee: string) {
+    // validation etc
+    // this.id = 'd2';
+    this.employees.push(employee);
+  }
+
+  printEmployeeInformation() {
+    console.log(this.employees.length);
+    console.log(this.employees);
+  }
+}
+
+class ITDepartment extends Department {
+  admins: string[];
+  constructor(id: string, admins: string[]) {
+    super(id, 'IT');
+    this.admins = admins;
+  }
+
+  describe() {
+    console.log('IT Department - ID: ' + this.id);
+  }
+}
+
+class AccountingDepartment extends Department {
+  private lastReport: string;
+  private static instance: AccountingDepartment;
+
+  get mostRecentReport() {
+    if (this.lastReport) {
+      return this.lastReport;
+    }
+    throw new Error('No report found.');
+  }
+
+  set mostRecentReport(value: string) {
+    if (!value) {
+      throw new Error('Please pass in a valid value!');
+    }
+    this.addReport(value);
+  }
+
+  private constructor(id: string, private reports: string[]) {
+    super(id, 'Accounting');
+    this.lastReport = reports[0];
+  }
+
+  static getInstance() {
+    if (AccountingDepartment.instance) {
+      return this.instance;
+    }
+    this.instance = new AccountingDepartment('d2', []);
+    return this.instance;
+  }
+
+  describe() {
+    console.log('Accounting Department - ID: ' + this.id);
+  }
+
+  addEmployee(name: string) {
+    if (name === 'Max') {
+      return;
+    }
+    this.employees.push(name);
+  }
+
+  addReport(text: string) {
+    this.reports.push(text);
+    this.lastReport = text;
+  }
+
+  printReports() {
+    console.log(this.reports);
+  }
+}
+
+const employee1 = Department.createEmployee('Max');
+console.log(employee1, Department.fiscalYear);
+
+const it = new ITDepartment('d1', ['Max']);
+
+it.addEmployee('Max');
+it.addEmployee('Manu');
+
+// it.employees[2] = 'Anna';
+
+it.describe();
+it.name = 'NEW NAME';
+it.printEmployeeInformation();
+
+console.log(it);
+
+// const accounting = new AccountingDepartment('d2', []);
+const accounting = AccountingDepartment.getInstance();
+const accounting2 = AccountingDepartment.getInstance();
+
+console.log(accounting, accounting2);
+
+accounting.mostRecentReport = 'Year End Report';
+accounting.addReport('Something went wrong...');
+console.log(accounting.mostRecentReport);
+
+accounting.addEmployee('Max');
+accounting.addEmployee('Manu');
+
+// accounting.printReports();
+// accounting.printEmployeeInformation();
+accounting.describe();
+
+// const accountingCopy = { name: 'DUMMY', describe: accounting.describe };
+
+// accountingCopy.describe();
+
+/********************************************* Interfaces **************************** */
+
+// type AddFn = (a: number, b: number) => number;
+interface AddFn {
+  (a: number, b: number): number;
+}
+
+let addNumber: AddFn;
+
+addNumber = (n1: number, n2: number) => {
+  return n1 + n2;
+};
+
+interface Named {
+  readonly name?: string;
+  outputName?: string;
+}
+
+interface Greetable extends Named {
+  greet(phrase: string): void;
+}
+
+class Person implements Greetable {
+  name?: string;
+  age = 30;
+
+  constructor(n?: string) {
+    if (n) {
+      this.name = n;
+    }
+  }
+
+  greet(phrase: string) {
+    if (this.name) {
+      console.log(phrase + ' ' + this.name);
+    } else {
+      console.log('Hi!');
+    }
+  }
+}
+
+let user1: Greetable;
+
+user1 = new Person();
+// user1.name = 'Manu';
+
+user1.greet('Hi there - I am');
+console.log(user1);
