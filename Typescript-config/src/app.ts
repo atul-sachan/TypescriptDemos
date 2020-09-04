@@ -112,8 +112,8 @@ function generateError(message: string, code: number): never {
 
 /********************************************* Union and Alias **************************** */
 
-type Combinable = number | string;   // Union Types
-type ConversionDescriptor = 'as-number' | 'as-text';  // Alias Types
+type Combinable = number | string;   // Unions
+type ConversionDescriptor = 'as-number' | 'as-text';  // Alias Types or Literal Objects
 
 function combine(
   input1: Combinable,
@@ -409,3 +409,273 @@ user1 = new Person();
 
 user1.greet('Hi there - I am');
 console.log(user1);
+
+/*************************************** Intersection Types **************************** */
+
+type Admin ={
+  name: string,
+  privileges: string[]
+}
+
+type Employee ={
+  name: string,
+  startDate: Date
+}
+
+type ElevatedEmployee = Admin & Employee;
+
+
+// Must require properties from Admin & Employee
+const e1: ElevatedEmployee = {
+  name: 'Atul',
+  privileges: ['Admin'],
+  startDate: new Date()
+}
+
+/*************************************** Union Types **************************** */
+
+type Combinables = string | number;
+type Numeric = number | boolean;
+
+type Universal = Combinables & Numeric;
+
+function addTypes(a: Combinable, b: Combinable) {
+  if (typeof a === 'string' || typeof b === 'string') {
+    return a.toString() + b.toString();
+  }
+  return a + b;
+}
+
+type UnknownEmployee = Employee | Admin;
+
+function printEmployeeInformation(emp: UnknownEmployee) {
+  console.log('Name: ' + emp.name);
+  if ('privileges' in emp) {
+    console.log('Privileges: ' + emp.privileges);
+  }
+  if ('startDate' in emp) {
+    console.log('Start Date: ' + emp.startDate);
+  }
+}
+
+printEmployeeInformation({ name: 'Manu', startDate: new Date() });
+
+class Car {
+  drive() {
+    console.log('Driving...');
+  }
+}
+
+class Truck {
+  drive() {
+    console.log('Driving a truck...');
+  }
+
+  loadCargo(amount: number) {
+    console.log('Loading cargo ...' + amount);
+  }
+}
+
+type Vehicle = Car | Truck;
+
+const v1 = new Car();
+const v2 = new Truck();
+
+function useVehicle(vehicle: Vehicle) {
+  vehicle.drive();
+  if (vehicle instanceof Truck) {
+    vehicle.loadCargo(1000);
+  }
+}
+
+useVehicle(v1);
+useVehicle(v2);
+
+/*************************************** Discriminated Union Types **************************** */
+
+interface Bird {
+  type: 'bird';
+  flyingSpeed: number;
+}
+
+interface Horse {
+  type: 'horse';
+  runningSpeed: number;
+}
+
+type Animal = Bird | Horse;
+
+function moveAnimal(animal: Animal) {
+  let speed;
+  switch (animal.type) {
+    case 'bird':
+      speed = animal.flyingSpeed;
+      break;
+    case 'horse':
+      speed = animal.runningSpeed;
+  }
+  console.log('Moving at speed: ' + speed);
+}
+
+moveAnimal({type: 'bird', flyingSpeed: 10});
+
+/*************************************** Index Properties **************************** */
+interface ErrorContainer { // { email: 'Not a valid email', username: 'Must start with a character!' }
+  [prop: string]: string;
+}
+
+const errorBag: ErrorContainer = {
+  email: 'Not a valid email!',
+  username: 'Must start with a capital character!'
+};
+
+/*************************************** Function Overload **************************** */
+function FnOverLoading(a: number): number;
+function FnOverLoading(a: number, b: number): number;
+function FnOverLoading(a: string, b: string):string;
+function FnOverLoading(a: string | number, b?: string| number) {
+  if ((typeof a === 'string' || typeof b === 'string') && b ) {
+    return a.toString() + b.toString();
+  }else if(!b){
+    return a;
+  }else{
+    return +a + +b;
+  }
+  
+}
+
+/*************************************** Nullish Coalescing & Channing  **************************** */
+type UserResponse = {
+  occupation?: string
+}
+const userss: UserResponse = {};
+// without optional chaining
+let userOccupation = userss && userss.occupation;
+// with optional chaining
+userOccupation = userss?.occupation;
+
+
+let userInputs = undefined;
+const storedData = userInputs ?? 'Default';
+console.log(storedData);
+// null value
+null || 20 // returns 20
+null ?? 20 // returns 20
+
+// undefined value
+undefined || 20 // returns 20
+undefined ?? 20 // returns 20
+
+// boolean
+true ?? 10 // returns trueb
+false ?? 10 // returns false
+
+// NaN
+NaN ?? 20 // returns NaN
+
+// empty string
+'' ?? 5 // returns ''
+
+/*************************************** Generics  **************************** */
+
+// const names: Array<string> = []; // string[]
+// // names[0].split(' ');
+
+// const promise: Promise<number> = new Promise((resolve, reject) => {
+//   setTimeout(() => {
+//     resolve(10);
+//   }, 2000);
+// });
+
+// promise.then(data => {
+//   // data.split(' ');
+// })
+
+function merge<T extends object, U extends object>(objA: T, objB: U) {
+  return Object.assign(objA, objB);
+}
+
+const mergedObj = merge({ name: 'Max', hobbies: ['Sports'] }, { age: 30 });
+console.log(mergedObj);
+
+interface Lengthy {
+  length: number;
+}
+
+function countAndDescribe<T extends Lengthy>(element: T): [T, string] {
+  let descriptionText = 'Got no value.';
+  if (element.length === 1) {
+    descriptionText = 'Got 1 element.';
+  } else if (element.length > 1) {
+    descriptionText = 'Got ' + element.length + ' elements.';
+  }
+  return [element, descriptionText];
+}
+
+console.log(countAndDescribe(['Sports', 'Cooking']));
+
+function extractAndConvert<T extends object, U extends keyof T>(
+  obj: T,
+  key: U
+) {
+  return 'Value: ' + obj[key];
+}
+
+extractAndConvert({ name: 'Max' }, 'name');
+
+class DataStorage<T extends string | number | boolean> {
+  private data: T[] = [];
+
+  addItem(item: T) {
+    this.data.push(item);
+  }
+
+  removeItem(item: T) {
+    if (this.data.indexOf(item) === -1) {
+      return;
+    }
+    this.data.splice(this.data.indexOf(item), 1); // -1
+  }
+
+  getItems() {
+    return [...this.data];
+  }
+}
+
+const textStorage = new DataStorage<string>();
+textStorage.addItem('Max');
+textStorage.addItem('Manu');
+textStorage.removeItem('Max');
+console.log(textStorage.getItems());
+
+const numberStorage = new DataStorage<number>();
+
+// const objStorage = new DataStorage<object>();
+// const maxObj = {name: 'Max'};
+// objStorage.addItem(maxObj);
+// objStorage.addItem({name: 'Manu'});
+// // ...
+// objStorage.removeItem(maxObj);
+// console.log(objStorage.getItems());
+
+interface CourseGoal {
+  title: string;
+  description: string;
+  completeUntil: Date;
+}
+
+function createCourseGoal(
+  title: string,
+  description: string,
+  date: Date
+): CourseGoal {
+  let courseGoal: Partial<CourseGoal> = {};
+  courseGoal.title = title;
+  courseGoal.description = description;
+  courseGoal.completeUntil = date;
+  return courseGoal as CourseGoal;
+}
+
+const names: Readonly<string[]> = ['Max', 'Anna'];
+// names.push('Manu'); !!! Error !!!!
+// names.pop(); !!! Error !!!!
